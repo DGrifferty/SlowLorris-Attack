@@ -41,18 +41,24 @@ class SlowLoris:
             f'New slow_loris class created with ip {self.ip} and max sockets {self.max_sockets}, logging to {self.log_filename} with log level {self.log_level}')
 
     def __log_print(self, message, log_type='i'):
-        print(message)
+
         if (log_type == 'i' and self.log_level < 1):
+            print(message)
             self.logger.info(message)
         elif (log_type == 'd' and self.log_level < 1):
+            print(message)
             self.logger.debug(message)
         elif (log_type == 'e' and self.log_level < 2):
+            print(message)
             self.logger.error(message)
         elif (log_type == 'w' and self.log_level < 2):
+            print(message)
             self.logger.warning(message)
         elif (log_type == 'c' and self.log_level < 3):
+            print(message)
             self.logger.critical(message)
         else:
+            print(message)
             self.logger.critical(f'Log Level Not Appropriate - {message}')
 
     def __get_user_agent(self):
